@@ -25,33 +25,33 @@ module.exports = {
        ON CONFLICT DO NOTHING`,
       {
         replacements: {
-          // Session TQ1001 (finished): 3 completed players + 1 who did not complete
-          sid_1: sessionByCode['TQ1001'],
+          // Session 100001 (finished): 3 completed players + 1 who did not complete
+          sid_1: sessionByCode['100001'],
           uid_1: userBySchool['2099-0002'],
           nick_1: 'Jordan',
           score_1: 85,
           completed_1: true,
 
-          sid_2: sessionByCode['TQ1001'],
+          sid_2: sessionByCode['100001'],
           uid_2: userBySchool['2099-0003'],
           nick_2: 'Milo',
           score_2: 90,
           completed_2: true,
 
-          sid_3: sessionByCode['TQ1001'],
+          sid_3: sessionByCode['100001'],
           uid_3: userBySchool['2099-0004'],
           nick_3: 'Chloe',
           score_3: 78,
           completed_3: true,
 
-          sid_4: sessionByCode['TQ1001'],
+          sid_4: sessionByCode['100001'],
           uid_4: userBySchool['2099-0006'],
           nick_4: 'Nia',
           score_4: 45,
           completed_4: false,
 
-          // Session TQ1002 (not finished): one player, not completed
-          sid_5: sessionByCode['TQ1002'],
+          // Session 100002 (not finished): one player, not completed
+          sid_5: sessionByCode['100002'],
           uid_5: userBySchool['2099-0003'],
           nick_5: 'MiloAgain',
           score_5: 0,
