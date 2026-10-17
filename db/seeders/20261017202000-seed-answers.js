@@ -50,27 +50,27 @@ module.exports = {
 
     const rows = [];
 
-    // Session TQ1001 (finished): Jordan answers Q1-Q4
-    rows.push(build('TQ1001', 'Jordan', 'What is the first tile color?', 'Red', true));
-    rows.push(build('TQ1001', 'Jordan', 'How many tiles are in a row?', '5', true));
-    rows.push(build('TQ1001', 'Jordan', 'Which tile opens the gate?', 'Ruby', false));
-    rows.push(build('TQ1001', 'Jordan', 'What comes after the blue tile?', 'Green', true));
+    // Session 100001 (finished): Jordan answers Q1-Q4
+    rows.push(build('100001', 'Jordan', 'What is the first tile color?', 'Red', true));
+    rows.push(build('100001', 'Jordan', 'How many tiles are in a row?', '5', true));
+    rows.push(build('100001', 'Jordan', 'Which tile opens the gate?', 'Ruby', false));
+    rows.push(build('100001', 'Jordan', 'What comes after the blue tile?', 'Green', true));
 
-    // Session TQ1001: Milo answers Q1-Q4
-    rows.push(build('TQ1001', 'Milo', 'What is the first tile color?', 'Red', true));
-    rows.push(build('TQ1001', 'Milo', 'How many tiles are in a row?', '4', false));
-    rows.push(build('TQ1001', 'Milo', 'Which tile opens the gate?', 'Crystal', true));
-    rows.push(build('TQ1001', 'Milo', 'What comes after the blue tile?', 'Green', true));
+    // Session 100001: Milo answers Q1-Q4
+    rows.push(build('100001', 'Milo', 'What is the first tile color?', 'Red', true));
+    rows.push(build('100001', 'Milo', 'How many tiles are in a row?', '4', false));
+    rows.push(build('100001', 'Milo', 'Which tile opens the gate?', 'Crystal', true));
+    rows.push(build('100001', 'Milo', 'What comes after the blue tile?', 'Green', true));
 
-    // Session TQ1001: Chloe answers Q1-Q4
-    rows.push(build('TQ1001', 'Chloe', 'What is the first tile color?', 'Blue', false));
-    rows.push(build('TQ1001', 'Chloe', 'How many tiles are in a row?', '5', true));
-    rows.push(build('TQ1001', 'Chloe', 'Which tile opens the gate?', 'Crystal', true));
-    rows.push(build('TQ1001', 'Chloe', 'What comes after the blue tile?', 'Purple', false));
+    // Session 100001: Chloe answers Q1-Q4
+    rows.push(build('100001', 'Chloe', 'What is the first tile color?', 'Blue', false));
+    rows.push(build('100001', 'Chloe', 'How many tiles are in a row?', '5', true));
+    rows.push(build('100001', 'Chloe', 'Which tile opens the gate?', 'Crystal', true));
+    rows.push(build('100001', 'Chloe', 'What comes after the blue tile?', 'Purple', false));
 
-    // Session TQ1001: Nia answers only Q1-Q2 (did not complete)
-    rows.push(build('TQ1001', 'Nia', 'What is the first tile color?', 'Red', true));
-    rows.push(build('TQ1001', 'Nia', 'How many tiles are in a row?', '7', false));
+    // Session 100001: Nia answers only Q1-Q2 (did not complete)
+    rows.push(build('100001', 'Nia', 'What is the first tile color?', 'Red', true));
+    rows.push(build('100001', 'Nia', 'How many tiles are in a row?', '7', false));
 
     // Build replacements programmatically so every named parameter has a value.
     const replacements = {};

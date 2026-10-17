@@ -19,11 +19,11 @@ module.exports = {
        ON CONFLICT DO NOTHING`,
       {
         replacements: {
-          code_1: 'TQ1001',
+          code_1: '100001',
           level_id_1: levelByNumber[1],
           started_1: started.toISOString(),
           ended_1: ended.toISOString(),
-          code_2: 'TQ1002',
+          code_2: '100002',
           level_id_2: levelByNumber[2],
           started_2: started.toISOString(),
           ended_2: null,
@@ -38,8 +38,8 @@ module.exports = {
        WHERE session_code IN (:code_1, :code_2)`,
       {
         replacements: {
-          code_1: 'TQ1001',
-          code_2: 'TQ1002',
+          code_1: '100001',
+          code_2: '100002',
         },
       }
     );
