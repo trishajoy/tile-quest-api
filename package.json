@@ -1,7 +1,7 @@
 {
-  "name": "your-game-api",
+  "name": "tile-quest-api",
   "version": "1.0.0",
-  "description": "CHANGE_ME - one sentence about your game (CS 313 Software Engineering 1)",
+  "description": "Tile Quest: match the tiles, answer the quiz, and pass each level (CS 313 Software Engineering 1)",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -19,7 +19,7 @@
   "engines": {
     "node": ">=22"
   },
-  "author": "CHANGE_ME - your full name",
+  "author": "Trisha Joy Gutierrez",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^18.0.7",
