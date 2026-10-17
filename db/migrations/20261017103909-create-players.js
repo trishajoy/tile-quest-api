@@ -30,7 +30,7 @@ module.exports = {
       fields: ['user_id'],
       type: 'foreign key',
       name: 'fk_players_user_id',
-      references: { table: 'users', field: 'id' },
+      references: { table: 'users', field: 'user_id' },
       onDelete: 'RESTRICT',
       onUpdate: 'CASCADE',
     });

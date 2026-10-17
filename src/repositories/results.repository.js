@@ -41,7 +41,7 @@ async function findFinishedGamePlayers(since) {
       p.completed
     FROM players p
     JOIN game_sessions gs ON gs.id = p.game_session_id
-    JOIN users u ON u.id = p.user_id
+    JOIN users u ON u.user_id = p.user_id
     WHERE gs.ended_at IS NOT NULL
       AND (CAST(:since AS timestamptz) IS NULL OR gs.ended_at >= CAST(:since AS timestamptz))
     ORDER BY gs.ended_at, p.score DESC, p.nickname

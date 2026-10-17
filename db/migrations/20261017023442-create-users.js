@@ -4,9 +4,9 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('users', {
-      id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false },
+      user_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false },
       school_id: { type: Sequelize.STRING(20), allowNull: false },
-      name: { type: Sequelize.STRING(120), allowNull: false },
+      full_name: { type: Sequelize.STRING(120), allowNull: false },
       email: { type: Sequelize.STRING(150), allowNull: false },
       role: { type: Sequelize.STRING(10), allowNull: false, defaultValue: 'player' },
       created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
