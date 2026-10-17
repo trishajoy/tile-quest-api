@@ -60,11 +60,20 @@ Base URL: `http://localhost:3001/api/v1`
 
 ## What "completed" means in my game
 
-[One or two sentences: when does a player count as having completed a game? For example: "A player completed the game when they answered every question, even if some answers were wrong or timed out."]
+A player completed the game when they answered every question in the session, even if some answers were wrong. A finished game is a game session whose `ended_at` is not null.
 
 ## Tables
 
-[List your tables, one line each, in the order of your migrations.]
+| # | Table | Migration file |
+|---|---|---|
+| 1 | `users` | `20261017023442-create-users.js` |
+| 2 | `levels` | `20261017024147-create-levels.js` |
+| 3 | `puzzles` | `20261017024700-create-puzzles.js` |
+| 4 | `questions` | `20261017101454-create-questions.js` |
+| 5 | `choices` | `20261017101633-create-choices.js` |
+| 6 | `game_sessions` | `20261017103144-create-game-sessions.js` |
+| 7 | `players` | `20261017103909-create-players.js` |
+| 8 | `answers` | `20261017104243-create-answers.js` |
 
 ## Database scripts
 
