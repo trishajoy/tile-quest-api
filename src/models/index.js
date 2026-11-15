@@ -11,9 +11,16 @@ const sequelize = new Sequelize(
   dbConfig
 );
 
-// Week 11: load your models here, one line each, then add their associations.
+// Load models, one line each, then add their associations.
 const User = require('./user')(sequelize, DataTypes);
+const Level = require('./level')(sequelize, DataTypes);
+const Question = require('./question')(sequelize, DataTypes);
+const Choice = require('./choice')(sequelize, DataTypes);
 
-// Week 12: User exposes password_hash only via scope('withLogin').
+// Associations.
+Level.hasMany(Question, { foreignKey: 'level_id', as: 'questions' });
+Question.belongsTo(Level, { foreignKey: 'level_id' });
+Question.hasMany(Choice, { foreignKey: 'question_id', as: 'choices' });
+Choice.belongsTo(Question, { foreignKey: 'question_id' });
 
-module.exports = { sequelize, Sequelize, DataTypes, User };
+module.exports = { sequelize, Sequelize, DataTypes, User, Level, Question, Choice };
