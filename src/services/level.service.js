@@ -2,6 +2,7 @@
 const { notFound, conflict } = require('../errors/app-error');
 const levelRepository = require('../repositories/level.repository');
 const questionRepository = require('../repositories/question.repository');
+const { envelope } = require('../utils/paginate');
 
 function toJson(level) {
   const l = level.toJSON ? level.toJSON() : level;
@@ -10,7 +11,7 @@ function toJson(level) {
 
 async function listLevels({ page, limit, q, sort, order }) {
   const { rows, count } = await levelRepository.findAllPaged({ page, limit, q, sort, order });
-  return { rows: rows.map(toJson), count };
+  return envelope(rows.map(toJson), count, { page, limit });
 }
 
 async function getLevel(levelId) {
