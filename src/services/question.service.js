@@ -5,6 +5,7 @@ const questionRepository = require('../repositories/question.repository');
 const levelRepository = require('../repositories/level.repository');
 const choiceRepository = require('../repositories/choice.repository');
 const levelService = require('./level.service');
+const { envelope } = require('../utils/paginate');
 
 function toJson(question) {
   const q = question.toJSON ? question.toJSON() : question;
@@ -19,7 +20,7 @@ async function listQuestions(levelId, { page, limit, q, sort, order }) {
   const { rows, count } = await questionRepository.findAllPagedForLevel(levelId, {
     page, limit, q, sort, order,
   });
-  return { rows: rows.map(toJson), count };
+  return envelope(rows.map(toJson), count, { page, limit });
 }
 
 async function getQuestion(levelId, questionId) {
