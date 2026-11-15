@@ -12,10 +12,8 @@ const sequelize = new Sequelize(
 );
 
 // Week 11: load your models here, one line each, then add their associations.
-// Example:
-//   const User = require('./user')(sequelize, DataTypes);
-//   const Player = require('./player')(sequelize, DataTypes);
-//   User.hasMany(Player, { foreignKey: 'user_id' });
-//   Player.belongsTo(User, { foreignKey: 'user_id' });
+const User = require('./user')(sequelize, DataTypes);
 
-module.exports = { sequelize, Sequelize, DataTypes };
+// Week 12: User exposes password_hash only via scope('withLogin').
+
+module.exports = { sequelize, Sequelize, DataTypes, User };

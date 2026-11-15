@@ -47,6 +47,9 @@ npm run dev
 | DB_USER | postgres | Database user |
 | DB_PASSWORD | (your own) | Database password. Never commit this. |
 | HUB_API_KEY | dev-hub-key | Key the Library Game Hub sends to read results. The library gives the real one at deployment. |
+| JWT_SECRET | (64 hex chars) | Secret for signing login JWTs. Generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| JWT_EXPIRES_IN | 1h | How long a login token lasts |
+| CORS_ORIGINS | http://localhost:5173 | Comma-separated list of origins the API accepts requests from |
 
 ## Endpoints (Hub Contract v1.2)
 
@@ -57,10 +60,30 @@ Base URL: `http://localhost:3001/api/v1`
 | GET | /health | Is the API up and can it reach the database? | 200 (503 when the database is down) |
 | GET | /game-info | Slug, name, group, developer, description, player limits, version | 200 |
 | GET | /results | Finished games, every player, and the top 3. Needs the `X-Hub-Key` header. Optional `?since=` | 200 (401 without the key) |
+| POST | /auth/register | Create a new account (always a PLAYER). Needs school_id, full_name, email, password. | 201 |
+| POST | /auth/login | Log in with school_id and password. Returns a JWT. | 200 |
+| GET | /auth/me | Your own account. Needs `Authorization: Bearer <token>`. | 200 |
+| GET | /users | List all accounts. ADMIN only. | 200 |
+| PATCH | /users/:id/role | Change an account's role. ADMIN only. | 200 |
 
 ## What "completed" means in my game
 
 A player completed the game when they answered every question in the session, even if some answers were wrong. A finished game is a game session whose `ended_at` is not null.
+
+## Demo accounts
+
+After `npm run db:seed`, every seeded account has the demo password **TileQuest-Demo-2026**:
+
+| school_id | full_name | role |
+|---|---|---|
+| 2099-0001 | Avery Morgan | admin |
+| 2099-0002 | Jordan O'Brien | player |
+| 2099-0003 | Milo Santos | player |
+| 2099-0004 | Chloe Étoile | player |
+| 2099-0005 | Alexandria Penelope ... | player |
+| 2099-0006 | Nia Park | player |
+
+This is the only demo password in this repo. It is never the AklatArena password.
 
 ## Tables
 
