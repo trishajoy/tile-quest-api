@@ -17,6 +17,16 @@ One entry per milestone, written the week you did it. Newest at the bottom.
 - AI tools: opencode (AI coding agent) drafted code, tests and docs for this milestone; I ran, reviewed and can explain them.
 
 ## M2 · The question bank
+- Dates worked: Nov 15, 2026 · Time spent: ~6 hours
+- Goal: Add paged level listing, nested questions/choices under levels, exactly-one-correct-option validation, level freeze when used by a game, server-set question positions, and picture upload for levels.
+- What I built: Migrations add-position-to-questions and add-picture-to-levels; models level.js, question.js, choice.js; repositories level.repository.js, question.repository.js, choice.repository.js; services level.service.js, question.service.js; validators level.validator.js, question.validator.js; controllers level.controller.js, question.controller.js; routes level.routes.js, question.routes.js; middleware upload-picture.js (renamed from upload-cover). Endpoints: GET/POST /levels, GET/PATCH /levels/:id, PUT /levels/:id/picture, GET/POST /levels/:levelId/questions, GET/PATCH/DELETE /levels/:levelId/questions/:questionId, GET /levels/:id?include=children.
+- Evidence: PR not yet opened · M2 commits
+- Problem I hit: Sequelize association aliases didn't match (Question vs questions, Choice vs choices); PostgreSQL lowercases aliased columns (maxPos → maxpos); `matchedData` didn't pick up merged-router params for questionId.
+- How I solved it: Added explicit `as: 'questions'` and `as: 'choices'` aliases in model associations; changed column alias to lowercase `maxpos`; switched to `req.params` for route IDs.
+- Decision I made and why: Used `Router({ mergeParams: true })` for nested question routes; picture stored on local disk under `uploads/levels/` (Render's disk is non-persistent, documented limitation); questions have server-set positions (1..n) with re-packing after delete in a transaction.
+- Changes to my design set: Added /levels, /levels/:id, /levels/:id/picture, /levels/:levelId/questions, /levels/:levelId/questions/:questionId to the endpoint table.
+- What I would explain to a classmate: Exactly-one-correct-option is enforced both by a database partial unique index (uq_choices_one_correct_per_question) and application-level validation for a clear 400 error.
+- AI tools: opencode (AI coding agent) drafted code, tests and docs for this milestone; I ran, reviewed and can explain them.
 
 ## M3 · Gameplay
 
