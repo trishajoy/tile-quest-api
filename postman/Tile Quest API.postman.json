@@ -1,0 +1,553 @@
+{
+  "info": {
+    "name": "Tile Quest API",
+    "description": "M1 accounts + M2 question bank + M3 gameplay collection for Tile Quest API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_variable_scope": "variables",
+    "_postman_exported_at": "2026-11-15T07:00:00.000Z",
+    "_postman_exported_using": "Postman/11.0.0"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3001/api/v1", "type": "string" },
+    { "key": "hubKey", "value": "", "type": "any" }
+  ],
+  "item": [
+    {
+      "name": "Log in (run this folder first)",
+      "item": [
+        {
+          "name": "Login admin (2099-0001)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-0001\",\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Body has token', () => { const json = pm.response.json(); pm.expect(json.token).to.be.a('string'); pm.expect(json.token_type).to.eql('Bearer'); pm.expect(json.expires_in).to.be.a('number'); });", "const json = pm.response.json(); pm.collectionVariables.set('adminToken', json.token); pm.collectionVariables.set('adminUserId', json.user.user_id);"] } }
+          ]
+        },
+        {
+          "name": "Login player (2099-0002)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-0002\",\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "const json = pm.response.json(); pm.collectionVariables.set('playerToken', json.token); pm.collectionVariables.set('playerUserId', json.user.user_id); pm.expect(json.user.role).to.eql('player');"] } }
+          ]
+        },
+        {
+          "name": "Login player (2099-0003)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-0003\",\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "const json = pm.response.json(); pm.collectionVariables.set('player2Token', json.token);"] } }
+          ]
+        },
+        {
+          "name": "Login wrong password (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-0001\",\"password\":\"wrong-password\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is INVALID_CREDENTIALS', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_CREDENTIALS'); pm.expect(json.error.message).to.eql('Wrong school ID or password.'); });"] } }
+          ]
+        },
+        {
+          "name": "Login unknown school ID (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"9999-9999\",\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Same error body as wrong password', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_CREDENTIALS'); pm.expect(json.error.message).to.eql('Wrong school ID or password.'); });"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Register new user (201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg1}}\",\"full_name\":\"Postman User\",\"email\":\"postman@example.com\",\"password\":\"PostmanPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg1', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 201', () => pm.response.to.be.status(201));", "pm.test('Role is PLAYER', () => { const json = pm.response.json(); pm.expect(json.user.role).to.eql('PLAYER'); pm.expect(json.user.password_hash).to.be.undefined; });", "pm.test('No password hash in response', () => { const json = pm.response.json(); pm.expect(json.user).to.not.have.property('password_hash'); });", "const json = pm.response.json(); pm.collectionVariables.set('registeredUserId', json.user.user_id); pm.collectionVariables.set('registeredSchoolId', json.user.school_id);"] } }
+          ]
+        },
+        {
+          "name": "Register body asks role ADMIN -> comes back PLAYER",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg2}}\",\"full_name\":\"Wants Admin\",\"email\":\"wantsadmin@example.com\",\"password\":\"AdminPass123\",\"role\":\"ADMIN\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg2', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 201', () => pm.response.to.be.status(201));", "pm.test('Role is PLAYER not ADMIN', () => { const json = pm.response.json(); pm.expect(json.user.role).to.eql('PLAYER'); });"] } }
+          ]
+        },
+        {
+          "name": "Register same school ID (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{registeredSchoolId}}\",\"full_name\":\"Duplicate\",\"email\":\"dup@example.com\",\"password\":\"DupPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 409', () => pm.response.to.be.status(409));", "pm.test('Error code is SCHOOL_ID_TAKEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('SCHOOL_ID_TAKEN'); });"] } }
+          ]
+        },
+        {
+          "name": "Register same email (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg3}}\",\"full_name\":\"Email Dup\",\"email\":\"postman@example.com\",\"password\":\"EmailDupPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg3', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 409', () => pm.response.to.be.status(409));", "pm.test('Error code is EMAIL_TAKEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('EMAIL_TAKEN'); });"] } }
+          ]
+        },
+        {
+          "name": "Register weak password (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg4}}\",\"full_name\":\"Weak\",\"email\":\"weak@example.com\",\"password\":\"short\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg4', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Register bad school_id format (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"not-a-school-id\",\"full_name\":\"Bad\",\"email\":\"bad@example.com\",\"password\":\"BadPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Register missing full_name (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg7}}\",\"email\":\"nofullname@example.com\",\"password\":\"NoFullNamePass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg7', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Register missing email (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg8}}\",\"full_name\":\"No Email\",\"password\":\"NoEmailPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg8', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Login empty body (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me with token (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Body has user account', () => { const json = pm.response.json(); pm.expect(json.user).to.have.property('user_id'); pm.expect(json.user.school_id).to.eql('2099-0001'); pm.expect(json.user.role).to.eql('admin'); pm.expect(json.user.password_hash).to.be.undefined; });"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me no token (401)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is AUTH_REQUIRED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('AUTH_REQUIRED'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me changed token (401)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer wrong-token-12345" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is INVALID_TOKEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_TOKEN'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me X-Demo-User only (401)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Demo-User", "value": "2099-0001" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me with player token (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{playerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Body has user account', () => { const json = pm.response.json(); pm.expect(json.user).to.have.property('user_id'); pm.expect(json.user.school_id).to.eql('2099-0002'); pm.expect(json.user.password_hash).to.be.undefined; });"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me garbage token (401)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer not-a-real-jwt-at-all" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is INVALID_TOKEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_TOKEN'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /users player token (403)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{playerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 403', () => pm.response.to.be.status(403));", "pm.test('Error code is FORBIDDEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('FORBIDDEN'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /users no token (401)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is AUTH_REQUIRED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('AUTH_REQUIRED'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /users admin token (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Body is an array', () => { const json = pm.response.json(); pm.expect(json).to.be.an('array'); });", "pm.test('No password_hash in any user', () => { const json = pm.response.json(); json.forEach(u => pm.expect(u).to.not.have.property('password_hash')); });"] } }
+          ]
+        },
+        {
+          "name": "PATCH /users/:id/role no token (401)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"role\":\"PLAYER\"}" },
+            "url": { "raw": "{{baseUrl}}/users/1/role", "host": ["{{baseUrl}}"], "path": ["users", "1", "role"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is AUTH_REQUIRED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('AUTH_REQUIRED'); });"] } }
+          ]
+        },
+        {
+          "name": "PATCH /users/:id/role player token (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{playerToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"role\":\"ADMIN\"}" },
+            "url": { "raw": "{{baseUrl}}/users/2/role", "host": ["{{baseUrl}}"], "path": ["users", "2", "role"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 403', () => pm.response.to.be.status(403));", "pm.test('Error code is FORBIDDEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('FORBIDDEN'); });"] } }
+          ]
+        },
+        {
+          "name": "PATCH /users/:id/role promote (200)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"role\":\"ADMIN\"}" },
+            "url": { "raw": "{{baseUrl}}/users/{{registeredUserId}}/role", "host": ["{{baseUrl}}"], "path": ["users", "{{registeredUserId}}", "role"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Role changed to ADMIN', () => { const json = pm.response.json(); pm.expect(json.user.role).to.eql('ADMIN'); });"] } }
+          ]
+        },
+        {
+          "name": "PATCH /users/:id/role change own role (409)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"role\":\"PLAYER\"}" },
+            "url": { "raw": "{{baseUrl}}/users/{{adminUserId}}/role", "host": ["{{baseUrl}}"], "path": ["users", "{{adminUserId}}", "role"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 409', () => pm.response.to.be.status(409));", "pm.test('Error code is CANNOT_CHANGE_OWN_ROLE', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('CANNOT_CHANGE_OWN_ROLE'); });"] } }
+          ]
+        },
+        {
+          "name": "PATCH /users/999999/role nonexistent (404)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"role\":\"PLAYER\"}" },
+            "url": { "raw": "{{baseUrl}}/users/999999/role", "host": ["{{baseUrl}}"], "path": ["users", "999999", "role"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 404', () => pm.response.to.be.status(404));", "pm.test('Error code is USER_NOT_FOUND', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('USER_NOT_FOUND'); });"] } }
+          ]
+        },
+        {
+          "name": "Register password letters only (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg9}}\",\"full_name\":\"Letters\",\"email\":\"letters@example.com\",\"password\":\"OnlyLetters\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg9', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Register password numbers only (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg10}}\",\"full_name\":\"Numbers\",\"email\":\"numbers@example.com\",\"password\":\"12345678\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg10', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Login missing school_id (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Login missing password (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-0001\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /health (200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Database is up', () => { const json = pm.response.json(); pm.expect(json.database).to.eql('up'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /game-info (200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/game-info", "host": ["{{baseUrl}}"], "path": ["game-info"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has game slug', () => { const json = pm.response.json(); pm.expect(json.slug).to.eql('tile-quest'); pm.expect(json.developer).to.eql('trishajoy'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /results without hub key (401)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/results", "host": ["{{baseUrl}}"], "path": ["results"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is HUB_KEY_REQUIRED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('HUB_KEY_REQUIRED'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /results with hub key (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Hub-Key", "value": "{{hubKey}}" }],
+            "url": { "raw": "{{baseUrl}}/results", "host": ["{{baseUrl}}"], "path": ["results"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has results', () => { const json = pm.response.json(); pm.expect(json.results).to.be.an('array'); pm.expect(json.results.length).to.be.greaterThan(0); });"] } }
+          ]
+        },
+        {
+          "name": "GET /results bad since (400)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Hub-Key", "value": "{{hubKey}}" }],
+            "url": { "raw": "{{baseUrl}}/results?since=not-a-date", "host": ["{{baseUrl}}"], "path": ["results"], "query": [{ "key": "since", "value": "not-a-date" }] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is INVALID_SINCE', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_SINCE'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /results wrong hub key (401)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Hub-Key", "value": "wrong-key" }],
+            "url": { "raw": "{{baseUrl}}/results", "host": ["{{baseUrl}}"], "path": ["results"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is HUB_KEY_REQUIRED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('HUB_KEY_REQUIRED'); });"] } }
+          ]
+        },
+        {
+          "name": "Register school_id too short (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-1\",\"full_name\":\"Short\",\"email\":\"short@example.com\",\"password\":\"ShortPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Register school_id too long (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-12345\",\"full_name\":\"Long\",\"email\":\"long@example.com\",\"password\":\"LongPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "Login invalid school_id format (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"abc\",\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is INVALID_CREDENTIALS', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_CREDENTIALS'); });"] } }
+          ]
+        },
+        {
+          "name": "Register invalid email format (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"{{schoolIdReg11}}\",\"full_name\":\"Bad Email\",\"email\":\"notanemail\",\"password\":\"BadEmailPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('schoolIdReg11', '2099-' + String(Math.floor(Math.random() * 9000 + 1000)));"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "PATCH /users/:id/role invalid role (400)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"role\":\"SUPERUSER\"}" },
+            "url": { "raw": "{{baseUrl}}/users/2/role", "host": ["{{baseUrl}}"], "path": ["users", "2", "role"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "POST /auth/register missing Content-Type (400)",
+          "request": {
+            "method": "POST",
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-9999\",\"full_name\":\"No CT\",\"email\":\"noct@example.com\",\"password\":\"NoCtPass123\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400 or 415', () => pm.expect([400, 415]).to.include(pm.response.code));"] } }
+          ]
+        },
+        {
+          "name": "GET /auth/me expired token format (401)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxfQ.invalid" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is INVALID_TOKEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_TOKEN'); });"] } }
+          ]
+        }
+      ]
+    }
+  ]
+}
