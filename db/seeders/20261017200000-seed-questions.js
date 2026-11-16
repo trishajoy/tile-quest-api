@@ -9,27 +9,39 @@ module.exports = {
     for (const row of levels) levelByNumber[row.level_number] = row.id;
 
     await queryInterface.sequelize.query(
-      `INSERT INTO questions (level_id, prompt, explanation)
+      `INSERT INTO questions (level_id, prompt, explanation, position, time_limit, base_points)
        VALUES
-         (:level_id_1, :prompt_1, :explanation_1),
-         (:level_id_2, :prompt_2, :explanation_2),
-         (:level_id_3, :prompt_3, :explanation_3),
-         (:level_id_4, :prompt_4, :explanation_4)
+         (:level_id_1, :prompt_1, :explanation_1, :position_1, :time_limit_1, :base_points_1),
+         (:level_id_2, :prompt_2, :explanation_2, :position_2, :time_limit_2, :base_points_2),
+         (:level_id_3, :prompt_3, :explanation_3, :position_3, :time_limit_3, :base_points_3),
+         (:level_id_4, :prompt_4, :explanation_4, :position_4, :time_limit_4, :base_points_4)
        ON CONFLICT DO NOTHING`,
       {
         replacements: {
           level_id_1: levelByNumber[1],
           prompt_1: 'What is the first tile color?',
           explanation_1: 'Red is the starting color.',
+          position_1: 1,
+          time_limit_1: 20,
+          base_points_1: 1000,
           level_id_2: levelByNumber[2],
           prompt_2: 'How many tiles are in a row?',
           explanation_2: null,
+          position_2: 1,
+          time_limit_2: 20,
+          base_points_2: 1000,
           level_id_3: levelByNumber[3],
           prompt_3: 'Which tile opens the gate?',
           explanation_3: 'The crystal tile.',
+          position_3: 1,
+          time_limit_3: 20,
+          base_points_3: 1000,
           level_id_4: levelByNumber[1],
           prompt_4: 'What comes after the blue tile?',
           explanation_4: 'The green tile follows.',
+          position_4: 2,
+          time_limit_4: 20,
+          base_points_4: 1000,
         },
       }
     );
