@@ -29,6 +29,18 @@ One entry per milestone, written the week you did it. Newest at the bottom.
 - AI tools: opencode (AI coding agent) drafted code, tests and docs for this milestone; I ran, reviewed and can explain them.
 
 ## M3 · Gameplay
+- Dates worked: Nov 16, 2026 · Time spent: ~8 hours
+- Goal: Add gameplay sessions, answers, scoring, and leaderboard with server-timed scoring.
+- What I built: Migration add-question-started-to-game-sessions, add-time-limit-and-points-to-questions, add-current-position-to-game-sessions; models game_session.js, player.js, answer.js; repositories session.repository.js, answer.repository.js, player.repository.js; services scoring.js, session.service.js; validators session.validator.js; controller session.controller.js; routes session.routes.js. Endpoints: POST/GET/PATCH /sessions/:code, POST /sessions/:code/answers, GET /sessions/:code/leaderboard. Added gameplay Postman folder with 8 requests.
+- Evidence: PR not yet opened · M3 commits
+- Problem I hit: `current_position` column missing from game_sessions (forgot migration); `question_id` vs `current_position` confusion in answer validation; `Player.increment` inside transaction causing 500; `matchedData` returning strings instead of integers for route params.
+- How I solved it: Added missing migration; compare question_id to currentQuestion.id instead of position; replaced Player.increment with fetch-modify-save; added .toInt() to integer validators.
+- Decision I made and why: Used separate scoring.js module for pure function (easy to unit test); transactions wrap answer+score insert; positions set by server (append at end); completed = answered every question in the set.
+- Changes to my design set: Added /sessions/:code/start, /sessions/:code/advance, /sessions/:code/close, /sessions/:code/question, /sessions/:code/answers, /sessions/:code/leaderboard to the endpoint table.
+- What I would explain to a classmate: Server-timed scoring prevents clients from cheating by reporting their own elapsed time; the scoring formula rewards fast answers (0 ms = full points, limit ms = half points, beyond limit = 0).
+- AI tools: opencode (AI coding agent) drafted code, tests and docs for this milestone; I ran, reviewed and can explain them.
+
+## M4 · Automated tests and server preparation
 
 ## M4 · Automated tests and server preparation
 

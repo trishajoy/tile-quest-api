@@ -685,6 +685,91 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Play a whole game",
+      "item": [
+        {
+          "name": "Login player 2099-0003 (Milo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"school_id\":\"2099-0003\",\"password\":\"TileQuest-Demo-2026\"}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "const json = pm.response.json(); pm.collectionVariables.set('gameToken', json.token); pm.collectionVariables.set('gameUserId', json.user.user_id);"] } }
+          ]
+        },
+        {
+          "name": "Start session 100002 (LOBBY→RUNNING)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{gameToken}}" }],
+            "url": { "raw": "{{baseUrl}}/sessions/100002/start", "host": ["{{baseUrl}}"], "path": ["sessions", "100002", "start"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has question_started_at', () => { const json = pm.response.json(); pm.expect(json.session.question_started_at).to.not.be.null; pm.expect(json.session.current_position).to.eql(1); });"] } }
+          ]
+        },
+        {
+          "name": "Get question 1 (no is_correct)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{gameToken}}" }],
+            "url": { "raw": "{{baseUrl}}/sessions/100002/question", "host": ["{{baseUrl}}"], "path": ["sessions", "100002", "question"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('No is_correct exposed', () => { const json = pm.response.json(); const choices = json.question.choices || []; choices.forEach(c => pm.expect(c).to.not.have.property('is_correct')); });", "pm.test('Has current_position', () => { const json = pm.response.json(); pm.expect(json.question.position).to.eql(1); });", "const json = pm.response.json(); pm.collectionVariables.set('gameQuestionId', json.question.id); pm.collectionVariables.set('gameCorrectChoiceId', json.question.choices.find(c => c.choice_text === '5')?.id);"] } }
+          ]
+        },
+        {
+          "name": "Submit correct answer (200)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{gameToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"question_id\":{{gameQuestionId}},\"choice_id\":{{gameCorrectChoiceId}}}" },
+            "url": { "raw": "{{baseUrl}}/sessions/100002/answers", "host": ["{{baseUrl}}"], "path": ["sessions", "100002", "answers"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has points', () => { const json = pm.response.json(); pm.expect(json).to.have.property('points'); pm.expect(json).to.have.property('is_correct'); pm.expect(json.is_correct).to.be.true; pm.expect(json).to.have.property('elapsed_ms'); });"] } }
+          ]
+        },
+        {
+          "name": "Submit same answer again (409 ALREADY_ANSWERED)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{gameToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"question_id\":{{gameQuestionId}},\"choice_id\":{{gameCorrectChoiceId}}}" },
+            "url": { "raw": "{{baseUrl}}/sessions/100002/answers", "host": ["{{baseUrl}}"], "path": ["sessions", "100002", "answers"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 409', () => pm.response.to.be.status(409));", "pm.test('Error code is ALREADY_ANSWERED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('ALREADY_ANSWERED'); });"] } }
+          ]
+        },
+        {
+          "name": "Close session (sets ended_at)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{gameToken}}" }],
+            "url": { "raw": "{{baseUrl}}/sessions/100002/close", "host": ["{{baseUrl}}"], "path": ["sessions", "100002", "close"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has ended_at', () => { const json = pm.response.json(); pm.expect(json.session.ended_at).to.not.be.null; });"] } }
+          ]
+        },
+        {
+          "name": "Get leaderboard (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{gameToken}}" }],
+            "url": { "raw": "{{baseUrl}}/sessions/100002/leaderboard", "host": ["{{baseUrl}}"], "path": ["sessions", "100002", "leaderboard"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has leaderboard', () => { const json = pm.response.json(); pm.expect(json.leaderboard).to.be.an('array'); });"] } }
+          ]
+        }
+      ]
     }
   ]
 }
