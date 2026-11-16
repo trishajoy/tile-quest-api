@@ -96,7 +96,7 @@ async function submitAnswer(sessionCode, actorUserId, questionId, choiceId) {
 
   // Caller must be seated in this game.
   const player = await playerRepository.findBySessionAndUser(session.id, actorUserId);
-  if (!player) throw forbidden('NOT_SEATED', 'You are not seated in this game.');
+  if (!player) throw forbidden('You are not seated in this game.');
 
   // It must be the current question.
   const currentQuestion = await sessionRepository.getCurrentQuestion(session.id);
