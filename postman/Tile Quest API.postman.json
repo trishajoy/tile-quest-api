@@ -1,10 +1,10 @@
 {
   "info": {
     "name": "Tile Quest API",
-    "description": "M1 accounts + M2 question bank + M3 gameplay collection for Tile Quest API",
+    "description": "M1 accounts + M2 question bank collection for Tile Quest API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_variable_scope": "variables",
-    "_postman_exported_at": "2026-11-15T07:00:00.000Z",
+    "_postman_exported_at": "2026-11-16T00:00:00.000Z",
     "_postman_exported_using": "Postman/11.0.0"
   },
   "variable": [
@@ -545,6 +545,143 @@
           },
           "event": [
             { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 401', () => pm.response.to.be.status(401));", "pm.test('Error code is INVALID_TOKEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_TOKEN'); });"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Question Bank",
+      "item": [
+        {
+          "name": "GET /levels (paged, 200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/levels?page=1&limit=5", "host": ["{{baseUrl}}"], "path": ["levels"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "5" }] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has envelope', () => { const json = pm.response.json(); pm.expect(json).to.have.property('data'); pm.expect(json).to.have.property('meta'); pm.expect(json.meta).to.have.property('page'); pm.expect(json.meta).to.have.property('limit'); pm.expect(json.meta).to.have.property('total'); pm.expect(json.meta).to.have.property('pages'); });", "pm.test('Page has data array', () => { const json = pm.response.json(); pm.expect(json.data).to.be.an('array'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /levels?sort=name (200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/levels?sort=name&order=asc", "host": ["{{baseUrl}}"], "path": ["levels"], "query": [{ "key": "sort", "value": "name" }, { "key": "order", "value": "asc" }] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has data', () => { const json = pm.response.json(); pm.expect(json.data).to.be.an('array'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /levels?sort=bad (400)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/levels?sort=nonexistent", "host": ["{{baseUrl}}"], "path": ["levels"], "query": [{ "key": "sort", "value": "nonexistent" }] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is VALIDATION_FAILED', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('VALIDATION_FAILED'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /levels/1?include=children (200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/levels/1?include=children", "host": ["{{baseUrl}}"], "path": ["levels", "1"], "query": [{ "key": "include", "value": "children" }] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has questions', () => { const json = pm.response.json(); pm.expect(json).to.have.property('questions'); pm.expect(json.questions).to.be.an('array'); });", "pm.test('Questions have choices', () => { const json = pm.response.json(); if (json.questions.length > 0) pm.expect(json.questions[0]).to.have.property('choices'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /levels/1/questions (200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/levels/1/questions", "host": ["{{baseUrl}}"], "path": ["levels", "1", "questions"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has envelope', () => { const json = pm.response.json(); pm.expect(json).to.have.property('data'); pm.expect(json).to.have.property('meta'); });"] } }
+          ]
+        },
+        {
+          "name": "POST /levels/1/questions (player, 403)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{playerToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"prompt\":\"Test?\",\"choices\":[{\"choice_text\":\"A\",\"is_correct\":true}]}" },
+            "url": { "raw": "{{baseUrl}}/levels/1/questions", "host": ["{{baseUrl}}"], "path": ["levels", "1", "questions"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 403', () => pm.response.to.be.status(403));", "pm.test('Error code is FORBIDDEN', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('FORBIDDEN'); });"] } }
+          ]
+        },
+        {
+          "name": "POST /levels/2/questions (admin, 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"prompt\":\"QBank test?\",\"explanation\":\"QBank\",\"choices\":[{\"choice_text\":\"No\",\"is_correct\":false},{\"choice_text\":\"Yes\",\"is_correct\":true}]}" },
+            "url": { "raw": "{{baseUrl}}/levels/2/questions", "host": ["{{baseUrl}}"], "path": ["levels", "2", "questions"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 201', () => pm.response.to.be.status(201));", "pm.test('Has position', () => { const json = pm.response.json(); pm.expect(json.position).to.be.a('number'); pm.expect(json.position).to.be.greaterThan(0); });", "const json = pm.response.json(); pm.collectionVariables.set('qbankQuestionId', json.id); pm.collectionVariables.set('qbankLevelId', 2);"] } }
+          ]
+        },
+        {
+          "name": "POST /levels/2/questions (two correct, 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"prompt\":\"Bad?\",\"choices\":[{\"choice_text\":\"A\",\"is_correct\":true},{\"choice_text\":\"B\",\"is_correct\":true}]}" },
+            "url": { "raw": "{{baseUrl}}/levels/2/questions", "host": ["{{baseUrl}}"], "path": ["levels", "2", "questions"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is ONE_CORRECT_OPTION', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('ONE_CORRECT_OPTION'); });"] } }
+          ]
+        },
+        {
+          "name": "GET /levels/2/questions/{{qbankQuestionId}} (200)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/levels/2/questions/{{qbankQuestionId}}", "host": ["{{baseUrl}}"], "path": ["levels", "2", "questions", "{{qbankQuestionId}}"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has choices', () => { const json = pm.response.json(); pm.expect(json.choices).to.be.an('array'); pm.expect(json.choices.length).to.be.greaterThan(0); });"] } }
+          ]
+        },
+        {
+          "name": "POST /levels (create for picture, 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"level_number\":99,\"name\":\"Picture Test Level\",\"pass_score\":70}" },
+            "url": { "raw": "{{baseUrl}}/levels", "host": ["{{baseUrl}}"], "path": ["levels"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 201', () => pm.response.to.be.status(201));", "const json = pm.response.json(); pm.collectionVariables.set('picLevelId', json.id); pm.expect(json.name).to.eql('Picture Test Level');"] } }
+          ]
+        },
+        {
+          "name": "PUT /levels/{{picLevelId}}/picture (admin, 200)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "picture", "type": "file", "src": "postman/fixtures/cover.png" }] },
+            "url": { "raw": "{{baseUrl}}/levels/{{picLevelId}}/picture", "host": ["{{baseUrl}}"], "path": ["levels", "{{picLevelId}}", "picture"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has picture URL', () => { const json = pm.response.json(); pm.expect(json.picture).to.match(/^\\/uploads\\/levels\\//); });"] } }
+          ]
+        },
+        {
+          "name": "PUT /levels/{{picLevelId}}/picture wrong type (400)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "picture", "type": "file", "src": "postman/fixtures/not-a-picture.txt" }] },
+            "url": { "raw": "{{baseUrl}}/levels/{{picLevelId}}/picture", "host": ["{{baseUrl}}"], "path": ["levels", "{{picLevelId}}", "picture"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is INVALID_FILE_TYPE', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_FILE_TYPE'); });"] } }
           ]
         }
       ]
