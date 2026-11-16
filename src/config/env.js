@@ -1,16 +1,12 @@
 // Loads .env once and fails fast when a required key is missing.
+// When DATABASE_URL is set (Render), the five DB_* keys are not required
+// and the connection uses the URL, with SSL when DB_SSL=true.
 require('dotenv').config({ quiet: true });
 
-const REQUIRED = [
-  'DB_HOST',
-  'DB_PORT',
-  'DB_NAME',
-  'DB_USER',
-  'DB_PASSWORD',
-  'HUB_API_KEY',
-  'JWT_SECRET',
-  'CORS_ORIGINS',
-];
+const REQUIRED = ['HUB_API_KEY', 'JWT_SECRET', 'CORS_ORIGINS'];
+if (!process.env.DATABASE_URL) {
+  REQUIRED.push('DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD');
+}
 const missing = REQUIRED.filter((key) => !process.env[key]);
 
 if (missing.length > 0) {
@@ -20,16 +16,22 @@ if (missing.length > 0) {
   );
 }
 
+function isTrue(value) {
+  return String(value).toLowerCase() === 'true';
+}
+
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT) || 3001,
   hubApiKey: process.env.HUB_API_KEY,
+  databaseUrl: process.env.DATABASE_URL || null,
   db: {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     name: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
+    ssl: isTrue(process.env.DB_SSL),
   },
   jwt: {
     secret: process.env.JWT_SECRET,

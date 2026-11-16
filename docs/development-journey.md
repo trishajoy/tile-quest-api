@@ -42,7 +42,19 @@ One entry per milestone, written the week you did it. Newest at the bottom.
 
 ## M4 · Automated tests and server preparation
 
-## M4 · Automated tests and server preparation
+### M4a · Server preparation (branch feature/deploy-prep)
+- Dates worked: Nov 16, 2026 · Time spent: ~2 hours
+- Goal: Prepare the API for Render deployment with DATABASE_URL, SSL, and proper middleware order.
+- What I built: Updated src/app.js (morgan, exact middleware order); src/config/env.js (DATABASE_URL support, DB_SSL flag, DATABASE_URL not required when set); src/config/database.js (DATABASE_URL, SSL via dialectOptions, test DB name \${DB_NAME}_test); package.json start:render script; render.yaml (renamed CHANGE-ME names to tile-quest-gutierrez / tile-quest-gutierrez-db / tile_quest).
+- Evidence: PR not yet opened · M4a commits
+- Problem I hit: morgan was not installed; database config needed to handle both DATABASE_URL and individual DB_* keys.
+- How I solved it: npm install morgan; env.js makes DB_* keys optional when DATABASE_URL is set; database.js uses url when present and adds ssl dialectOptions when DB_SSL=true.
+- Decision I made and why: Test database name is \${DB_NAME}_test (separate from production); SSL uses rejectUnauthorized: false for Render compatibility.
+- Changes to my design set: None (infrastructure only).
+- What I would explain to a classmate: DATABASE_URL is the Render-standard way to connect; individual DB_* keys are for local development.
+- AI tools: opencode (AI coding agent) drafted code, tests and docs for this milestone; I ran, reviewed and can explain them.
+
+## M4b · Automated tests (branch feature/tests)
 
 ## M5 · API documentation and deployment
 

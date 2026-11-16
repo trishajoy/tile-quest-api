@@ -2,6 +2,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const morgan = require('morgan');
 const path = require('path');
 const env = require('./config/env');
 const routes = require('./routes');
@@ -13,14 +14,10 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: (origin, done) => done(null, !origin || env.corsOrigins.includes(origin)) }));
-app.use(express.json());
-
-// Serve uploaded pictures (level covers).
+if (env.nodeEnv !== 'test') app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
-// Hub Contract: every endpoint lives under /api/v1
+app.use(express.json());
 app.use('/api/v1', routes);
-
 app.use(notFound);
 app.use(errorHandler);
 
