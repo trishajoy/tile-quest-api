@@ -1,10 +1,10 @@
 {
   "info": {
     "name": "Tile Quest API",
-    "description": "M1 accounts + M2 question bank + M3 gameplay collection for Tile Quest API",
+    "description": "M1 accounts + M2 question bank collection for Tile Quest API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_variable_scope": "variables",
-    "_postman_exported_at": "2026-11-15T07:00:00.000Z",
+    "_postman_exported_at": "2026-11-16T00:00:00.000Z",
     "_postman_exported_using": "Postman/11.0.0"
   },
   "variable": [
@@ -649,24 +649,36 @@
           ]
         },
         {
-          "name": "PUT /levels/6/picture (admin, 200)",
+          "name": "POST /levels (create for picture, 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "raw", "raw": "{\"level_number\":99,\"name\":\"Picture Test Level\",\"pass_score\":70}" },
+            "url": { "raw": "{{baseUrl}}/levels", "host": ["{{baseUrl}}"], "path": ["levels"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 201', () => pm.response.to.be.status(201));", "const json = pm.response.json(); pm.collectionVariables.set('picLevelId', json.id); pm.expect(json.name).to.eql('Picture Test Level');"] } }
+          ]
+        },
+        {
+          "name": "PUT /levels/{{picLevelId}}/picture (admin, 200)",
           "request": {
             "method": "PUT",
             "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
             "body": { "mode": "formdata", "formdata": [{ "key": "picture", "type": "file", "src": "postman/fixtures/cover.png" }] },
-            "url": { "raw": "{{baseUrl}}/levels/6/picture", "host": ["{{baseUrl}}"], "path": ["levels", "6", "picture"] }
+            "url": { "raw": "{{baseUrl}}/levels/{{picLevelId}}/picture", "host": ["{{baseUrl}}"], "path": ["levels", "{{picLevelId}}", "picture"] }
           },
           "event": [
             { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has picture URL', () => { const json = pm.response.json(); pm.expect(json.picture).to.match(/^\\/uploads\\/levels\\//); });"] } }
           ]
         },
         {
-          "name": "PUT /levels/6/picture wrong type (400)",
+          "name": "PUT /levels/{{picLevelId}}/picture wrong type (400)",
           "request": {
             "method": "PUT",
             "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
             "body": { "mode": "formdata", "formdata": [{ "key": "picture", "type": "file", "src": "postman/fixtures/not-a-picture.txt" }] },
-            "url": { "raw": "{{baseUrl}}/levels/6/picture", "host": ["{{baseUrl}}"], "path": ["levels", "6", "picture"] }
+            "url": { "raw": "{{baseUrl}}/levels/{{picLevelId}}/picture", "host": ["{{baseUrl}}"], "path": ["levels", "{{picLevelId}}", "picture"] }
           },
           "event": [
             { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 400', () => pm.response.to.be.status(400));", "pm.test('Error code is INVALID_FILE_TYPE', () => { const json = pm.response.json(); pm.expect(json.error.code).to.eql('INVALID_FILE_TYPE'); });"] } }

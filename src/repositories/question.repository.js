@@ -34,7 +34,6 @@ async function findById(questionId) {
 async function findForLevelWithChoices(questionId) {
   return Question.findByPk(questionId, {
     include: { model: Choice, as: 'choices' },
-    attributes: { exclude: ['level_id'] },
   });
 }
 
