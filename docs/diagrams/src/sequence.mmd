@@ -1,0 +1,34 @@
+sequenceDiagram
+    autonumber
+    participant P as Player
+    participant C as Client
+    participant R as Route
+    participant V as Validator
+    participant Ctl as Controller
+    participant S as Service
+    participant R2 as Repository
+    participant D as Database
+
+    P->>C: Enter answer
+    C->>R: POST /sessions/:code/answers + Bearer token
+    R->>V: Validate input
+    V-->>R: matchedData
+    R->>Ctl: submitAnswer()
+    Ctl->>S: submitAnswer()
+    S->>R2: findBySessionAndUser()
+    R2->>D: SELECT player
+    D-->>R2: player row
+    R2-->>S: player
+    S->>R2: getCurrentQuestion()
+    R2->>D: SELECT question + choices
+    D-->>R2: question row
+    R2-->>S: question
+    S->>S: pointsFor()
+    S->>R2: recordAnswerAndScore()
+    R2->>D: INSERT answer + UPDATE score
+    D-->>R2: answer row
+    R2-->>S: committed
+    S-->>Ctl: {points, is_correct, elapsed_ms}
+    Ctl-->>R: 200 + result
+    R-->>C: JSON response
+    C-->>P: Show points earned

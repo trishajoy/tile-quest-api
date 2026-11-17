@@ -1,0 +1,19 @@
+flowchart TD
+    P[Player] -->|Register| R[POST /auth/register]
+    P -->|Login| L[POST /auth/login]
+    L -->|Bearer token| T[Auth token]
+    T -->|Authorized| Q[GET /sessions/:code/question]
+    T -->|Submit answer| A[POST /sessions/:code/answers]
+    Q -->|Question + options| P
+    A -->|Points + correctness| A2[POST /sessions/:code/answers]
+    A2 -->|Next question| N[POST /sessions/:code/advance]
+    N --> Q
+    N -->|Last question| C[POST /sessions/:code/close]
+    C -->|Ended| R2[GET /results]
+    style P fill:#e1f5e1
+    style L fill:#e1f5e1
+    style Q fill:#e3f2fd
+    style A fill:#e3f2fd
+    style N fill:#e3f2fd
+    style C fill:#fff3e0
+    style R2 fill:#fff3e0

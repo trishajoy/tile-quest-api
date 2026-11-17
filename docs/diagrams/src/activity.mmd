@@ -1,0 +1,21 @@
+flowchart TD
+    A[Host creates session] --> B[Session in LOBBY]
+    B --> C[Host starts session]
+    C --> D[current_position = 1]
+    D --> E[question_started_at = now]
+    E --> F[Host gets question]
+    F --> G[Player gets question]
+    G --> H[Player answers question]
+    H --> I[Server computes elapsed time]
+    I --> J[Server computes points]
+    J --> K[Server saves answer + score]
+    K --> L{All questions answered?}
+    L -->|Yes| M[Set completed true]
+    L -->|No| N[Host advances question]
+    N --> O[current_position++]
+    O --> P[question_started_at = now]
+    P --> F
+    M --> Q[Host closes session]
+    Q --> R[ended_at = now]
+    R --> S[Game finished]
+    S --> T[Hub gets results]

@@ -17,7 +17,9 @@
     "db:check": "node scripts/db-check.js",
     "check": "node scripts/ci-check.js",
     "test": "jest --runInBand",
-    "test:coverage": "jest --runInBand --coverage"
+    "test:coverage": "jest --runInBand --coverage",
+    "docs:dictionary": "node scripts/make-data-dictionary.js",
+    "docs:api": "node scripts/make-api-reference.js"
   },
   "engines": {
     "node": ">=22"

@@ -1,18 +1,20 @@
-# Week 15 kit: starter OpenAPI document. The Hub Contract and account endpoints are written for you.
-# Replace every CHANGE_ME, then add one entry under paths for EVERY endpoint of your game
-# (the check needs at least 15 operations, each with a summary and its responses).
+# Week 15: OpenAPI 3 document for Tile Quest API.
+# Every endpoint of the game has an entry here with summary and responses.
 openapi: 3.0.3
 info:
-  title: CHANGE_ME Your Game API
+  title: Tile Quest API
   version: 1.0.0
   description: >
-    CHANGE_ME: one paragraph about your game. Implements Hub Contract v1.3. Every error answers { "error": { "code",
-    "message" } }.
-
-
+    Tile Quest: match the tiles, answer the quiz, and pass each level to keep climbing.
+    Implements Hub Contract v1.3. Every error answers { "error": { "code", "message" } }.
     Log in with POST /auth/login, then click Authorize and paste the token.
+
+    Developer: Trisha Joy Gutierrez (trisha Joy Gutierrez / trishajoy)
   contact:
-    name: CHANGE_ME your name (your GitHub username)
+    name: Trisha Joy Gutierrez / trishajoy
+  license:
+    name: ISC
+    url: https://opensource.org/licenses/ISC
 servers:
   - url: /api/v1
     description: This server
@@ -20,6 +22,11 @@ tags:
   - name: Hub Contract
     description: The endpoints every game provides to the Library Game Hub
   - name: Accounts
+    description: Player accounts, login, and admin user management
+  - name: Question Bank
+    description: Levels (game sets), questions, and answer choices
+  - name: Gameplay
+    description: Game sessions, answers, scoring, and leaderboard
 components:
   securitySchemes:
     bearerAuth:
@@ -43,9 +50,6 @@ components:
             error:
               code: VALIDATION_FAILED
               message: title must be 3 to 150 characters long
-              details:
-                - field: title
-                  message: title must be 3 to 150 characters long
     Unauthorized:
       description: No login, or the token is not valid
       content:
@@ -65,19 +69,27 @@ components:
           example:
             error:
               code: FORBIDDEN
-              message: This question set belongs to another host.
+              message: You are not allowed to do that.
     NotFound:
       description: That thing does not exist
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: SESSION_NOT_FOUND
+              message: No session with code 99999.
     Conflict:
       description: Well formed and allowed, but it clashes with the current state
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: ALREADY_ANSWERED
+              message: You have already answered this question.
   schemas:
     Error:
       type: object
@@ -140,6 +152,164 @@ components:
         pages:
           type: integer
           example: 3
+    Level:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        level_number:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Meadow Gate
+        pass_score:
+          type: integer
+          example: 60
+        picture:
+          type: string
+          example: /uploads/levels/level-1-abc123.png
+        created_at:
+          type: string
+          format: date-time
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        level_id:
+          type: integer
+          example: 1
+        prompt:
+          type: string
+          example: What is the first tile color?
+        explanation:
+          type: string
+          example: Red is the starting color.
+        position:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+    Choice:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        question_id:
+          type: integer
+          example: 1
+        choice_text:
+          type: string
+          example: Red
+        is_correct:
+          type: boolean
+          example: true
+    GameSession:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        session_code:
+          type: string
+          example: 100001
+        level_id:
+          type: integer
+          example: 1
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        question_started_at:
+          type: string
+          format: date-time
+        current_position:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        game_session_id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 3
+        nickname:
+          type: string
+          example: Milo
+        score:
+          type: integer
+          example: 90
+        completed:
+          type: boolean
+          example: true
+    AnswerResult:
+      type: object
+      properties:
+        points:
+          type: integer
+          example: 750
+        is_correct:
+          type: boolean
+          example: true
+        elapsed_ms:
+          type: integer
+          example: 8500
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+        user:
+          $ref: "#/components/schemas/User"
+    GameInfo:
+      type: object
+      properties:
+        slug:
+          type: string
+          example: tile-quest
+        name:
+          type: string
+          example: Tile Quest
+        team:
+          type: string
+          example: Team 4 (3-1)
+        developer:
+          type: string
+          example: trishajoy
+        description:
+          type: string
+          example: Match the tiles, answer the quiz, and pass each level to keep climbing.
+        min_players:
+          type: integer
+          example: 1
+        max_players:
+          type: integer
+          example: 30
+        version:
+          type: string
+          example: 1.0.0
 paths:
   /health:
     get:
@@ -153,11 +323,11 @@ paths:
             application/json:
               example:
                 status: ok
-                service: aklat-arena-api
-                version: 1.4.0
+                service: tile-quest-api
+                version: 1.0.0
                 database: up
                 uptime_seconds: 42
-                timestamp: 2026-11-25T02:00:00.000Z
+                timestamp: 2026-11-16T02:00:00.000Z
         "503":
           description: The database cannot be reached
   /game-info:
@@ -170,15 +340,8 @@ paths:
           description: The game card
           content:
             application/json:
-              example:
-                slug: your-game-slug
-                name: Your Game
-                team: Your group (3-1)
-                developer: your-github-username
-                description: One sentence.
-                min_players: 2
-                max_players: 60
-                version: 1.0.0
+              schema:
+                $ref: "#/components/schemas/GameInfo"
   /results:
     get:
       tags:
@@ -196,7 +359,30 @@ paths:
       responses:
         "200":
           description: The finished games
-          oldest first: null
+          content:
+            application/json:
+              example:
+                game: tile-quest
+                developer: trishajoy
+                generated_at: 2026-11-16T02:00:00.000Z
+                results:
+                  - session_code: 100001
+                    started_at: 2026-10-17T09:00:00.000Z
+                    ended_at: 2026-10-17T09:30:00.000Z
+                    players:
+                      - school_id: 2099-0003
+                        nickname: Milo
+                        score: 90
+                        completed: true
+                      - school_id: 2099-0002
+                        nickname: Jordan
+                        score: 85
+                        completed: true
+                    podium:
+                      - rank: 1
+                        school_id: 2099-0003
+                        nickname: Milo
+                        score: 90
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -222,7 +408,7 @@ paths:
                 school_id:
                   type: string
                   pattern: ^\d{4}-\d{4}$
-                  example: 2099-3001
+                  example: 2099-9901
                 full_name:
                   type: string
                   minLength: 2
@@ -231,13 +417,13 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: nina@aklatarena.test
+                  example: nina@tilequest.test
                 password:
                   type: string
                   minLength: 8
                   maxLength: 72
                   description: At least one letter and one number
-                  example: Libro-2026
+                  example: TileQuest-Demo-2026
       responses:
         "201":
           description: Created
@@ -272,27 +458,18 @@ paths:
                   example: 2099-0001
                 password:
                   type: string
-                  example: Aklat-Demo-2026
+                  example: TileQuest-Demo-2026
       responses:
         "200":
           description: Logged in
           content:
             application/json:
-              example:
-                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.sig
-                token_type: Bearer
-                expires_in: 1h
-                user:
-                  user_id: 1
-                  school_id: 2099-0001
-                  full_name: Maria Ong
-                  email: maria.ong@aklatarena.test
-                  role: HOST
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
-          description: INVALID_CREDENTIALS
-          the same answer for an unknown school ID and a wrong password: null
+          description: INVALID_CREDENTIALS - the same answer for an unknown school ID and a wrong password
   /auth/me:
     get:
       tags:
@@ -312,3 +489,766 @@ paths:
                     $ref: "#/components/schemas/User"
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /users:
+    get:
+      tags:
+        - Accounts
+      summary: List all accounts (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default 1)
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page (default 10, max 50)
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+                  meta:
+                    $ref: "#/components/schemas/Meta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /users/{id}/role:
+    patch:
+      tags:
+        - Accounts
+      summary: Change an account's role (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Account ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - PLAYER
+                    - HOST
+                    - ADMIN
+                  example: HOST
+      responses:
+        "200":
+          description: Role changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /levels:
+    get:
+      tags:
+        - Question Bank
+      summary: List game sets (levels) with paging
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: q
+          in: query
+          description: Search by level name
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort column
+          schema:
+            type: string
+            enum: [id, level_number, name, pass_score]
+        - name: order
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        "200":
+          description: Paged list of levels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Level"
+                  meta:
+                    $ref: "#/components/schemas/Meta"
+    post:
+      tags:
+        - Question Bank
+      summary: Create a game set (host or admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - level_number
+                - name
+              properties:
+                level_number:
+                  type: integer
+                  example: 6
+                name:
+                  type: string
+                  example: Ancient Summit
+                pass_score:
+                  type: integer
+                  example: 70
+      responses:
+        "201":
+          description: Level created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Level"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /levels/{id}:
+    get:
+      tags:
+        - Question Bank
+      summary: Get a game set by ID
+      parameters:
+        - name: id
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+        - name: include
+          in: query
+          description: Set to "children" to include questions and choices
+          schema:
+            type: string
+            enum: [children]
+      responses:
+        "200":
+          description: A level
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Level"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags:
+        - Question Bank
+      summary: Update a game set (host or admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Ancient Summit
+                pass_score:
+                  type: integer
+                  example: 75
+      responses:
+        "200":
+          description: Level updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Level"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /levels/{id}/picture:
+    put:
+      tags:
+        - Question Bank
+      summary: Upload a picture for a game set (host or admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                picture:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Picture uploaded
+          content:
+            application/json:
+              example:
+                id: 1
+                level_number: 1
+                name: Meadow Gate
+                picture: /uploads/levels/level-1-abc123.png
+        "400":
+          description: Wrong file type or no file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error:
+                  code: INVALID_FILE_TYPE
+                  message: picture must be a PNG or JPEG image
+        "413":
+          description: File too large (over 1 MB)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error:
+                  code: FILE_TOO_LARGE
+                  message: picture must be at most 1 MB
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /levels/{levelId}/questions:
+    get:
+      tags:
+        - Question Bank
+      summary: List questions for a game set with paging
+      parameters:
+        - name: levelId
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: q
+          in: query
+          description: Search by prompt
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort column
+          schema:
+            type: string
+            enum: [id, position, prompt]
+        - name: order
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        "200":
+          description: Paged list of questions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Question"
+                  meta:
+                    $ref: "#/components/schemas/Meta"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags:
+        - Question Bank
+      summary: Create a question with choices (host or admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: levelId
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+                - choices
+              properties:
+                prompt:
+                  type: string
+                  example: What is 2+2?
+                explanation:
+                  type: string
+                  example: Basic math
+                choices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      choice_text:
+                        type: string
+                        example: 4
+                      is_correct:
+                        type: boolean
+                        example: true
+      responses:
+        "201":
+          description: Question created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "400":
+          description: Must have exactly one correct option
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error:
+                  code: ONE_CORRECT_OPTION
+                  message: A question must have exactly one correct option.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /levels/{levelId}/questions/{questionId}:
+    get:
+      tags:
+        - Question Bank
+      summary: Get a question with its choices
+      parameters:
+        - name: levelId
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+        - name: questionId
+          in: path
+          description: Question ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A question with choices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags:
+        - Question Bank
+      summary: Update a question (host or admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: levelId
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+        - name: questionId
+          in: path
+          description: Question ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  example: What is 3+3?
+                explanation:
+                  type: string
+                  example: Addition
+      responses:
+        "200":
+          description: Question updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags:
+        - Question Bank
+      summary: Delete a question (host or admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: levelId
+          in: path
+          description: Level ID
+          required: true
+          schema:
+            type: integer
+        - name: questionId
+          in: path
+          description: Question ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Question deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /sessions/{code}/start:
+    post:
+      tags:
+        - Gameplay
+      summary: Start a game session (LOBBY → RUNNING)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          description: Session join code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Session started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: "#/components/schemas/GameSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /sessions/{code}/advance:
+    post:
+      tags:
+        - Gameplay
+      summary: Advance to the next question
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          description: Session join code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_position
+              properties:
+                current_position:
+                  type: integer
+                  example: 2
+      responses:
+        "200":
+          description: Session advanced
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: "#/components/schemas/GameSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /sessions/{code}/close:
+    post:
+      tags:
+        - Gameplay
+      summary: Close a game session (sets ended_at)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          description: Session join code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Session closed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: "#/components/schemas/GameSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /sessions/{code}/question:
+    get:
+      tags:
+        - Gameplay
+      summary: Current question and options (never is_correct)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          description: Session join code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current question
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  question:
+                    $ref: "#/components/schemas/Question"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /sessions/{code}/answers:
+    post:
+      tags:
+        - Gameplay
+      summary: Submit an answer (server-timed scoring)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          description: Session join code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question_id
+                - choice_id
+              properties:
+                question_id:
+                  type: integer
+                  example: 1
+                choice_id:
+                  type: integer
+                  example: 1
+      responses:
+        "200":
+          description: Answer recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /sessions/{code}/leaderboard:
+    get:
+      tags:
+        - Gameplay
+      summary: Live leaderboard (ties share ranks)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          description: Session join code
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Max players to return (default 10, max 50)
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leaderboard:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        school_id:
+                          type: string
+                        nickname:
+                          type: string
+                        score:
+                          type: integer
+                        completed:
+                          type: boolean
+                        rank:
+                          type: integer
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"

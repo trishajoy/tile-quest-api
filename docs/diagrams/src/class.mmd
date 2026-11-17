@@ -1,0 +1,65 @@
+classDiagram
+    class User {
+        +user_id: int
+        +school_id: string
+        +full_name: string
+        +email: string
+        +role: string
+        +password_hash: string
+    }
+    class Level {
+        +id: int
+        +level_number: int
+        +name: string
+        +pass_score: int
+        +picture: string
+    }
+    class Question {
+        +id: int
+        +level_id: int
+        +prompt: string
+        +explanation: string
+        +position: int
+        +time_limit: int
+        +base_points: int
+    }
+    class Choice {
+        +id: int
+        +question_id: int
+        +choice_text: string
+        +is_correct: bool
+    }
+    class GameSession {
+        +id: int
+        +session_code: string
+        +level_id: int
+        +started_at: datetime
+        +ended_at: datetime
+        +question_started_at: datetime
+        +current_position: int
+    }
+    class Player {
+        +id: int
+        +game_session_id: int
+        +user_id: int
+        +nickname: string
+        +score: int
+        +completed: bool
+    }
+    class Answer {
+        +id: int
+        +player_id: int
+        +question_id: int
+        +choice_id: int
+        +is_correct: bool
+        +answered_at: datetime
+    }
+    User "1" -- "many" Player : has many
+    Level "1" -- "many" Question : contains
+    Level "1" -- "many" GameSession : hosts
+    Question "1" -- "many" Choice : has
+    Question "1" -- "many" Answer : is answered by
+    GameSession "1" -- "many" Player : seats
+    GameSession "1" -- "many" Answer : records
+    Player "1" -- "many" Answer : provides
+    Choice "1" -- "many" Answer : selected by

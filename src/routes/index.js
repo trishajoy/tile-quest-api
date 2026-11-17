@@ -9,6 +9,9 @@ router.use('/health', require('./health.routes'));
 router.use('/game-info', require('./game-info.routes'));
 router.use('/results', require('./results.routes'));
 
+// API documentation: OpenAPI 3 document + Swagger UI (before currentUser).
+router.use(require('./docs.routes'));
+
 // Who is calling, from the login token. Applies to everything mounted after this.
 router.use(currentUser);
 
