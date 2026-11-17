@@ -1,0 +1,27 @@
+flowchart TD
+    Client[Client Browser] --> Router[Express Router /api/v1]
+    Router --> Middleware[Middleware Stack]
+    Middleware --> M1[trust proxy]
+    M1 --> M2[helmet security headers]
+    M2 --> M3[cors origin allow-list]
+    M3 --> M4[morgan logging]
+    M4 --> M5[static uploads]
+    M5 --> M6[express.json body parser]
+    M6 --> Routes[Route Files]
+    Routes --> Guards[requireUser guards]
+    Guards --> Validators[express-validator validators]
+    Validators --> matchedData[matchedData extraction]
+    matchedData --> Controllers[Controllers]
+    Controllers --> Services[Services business rules]
+    Services --> Repositories[Repositories Sequelize]
+    Repositories --> Models[Sequelize Models]
+    Models --> DB[(PostgreSQL)]
+    subgraph Render Platform
+    DB
+    end
+    subgraph Hub Contract
+    H[Library Game Hub] -.->|X-Hub-Key| GET[GET /results]
+    end
+    GET -.->|results JSON| H
+    style Render fill:#e1f5e1
+    style Hub Contract fill:#e3f2fd
