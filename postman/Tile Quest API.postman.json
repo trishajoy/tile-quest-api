@@ -759,6 +759,17 @@
           ]
         },
         {
+          "name": "GET /results shows closed game (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Hub-Key", "value": "{{hubKey}}" }],
+            "url": { "raw": "{{baseUrl}}/results", "host": ["{{baseUrl}}"], "path": ["results"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status is 200', () => pm.response.to.be.status(200));", "pm.test('Has results array', () => { const json = pm.response.json(); pm.expect(json.results).to.be.an('array'); });", "pm.test('Session 100002 appears in results', () => { const json = pm.response.json(); const game = json.results.find(g => g.session_code === '100002'); pm.expect(game).to.not.be.undefined; pm.expect(game.players.some(p => p.completed)).to.be.true; });"] } }
+          ]
+        },
+        {
           "name": "Get leaderboard (200)",
           "request": {
             "method": "GET",
