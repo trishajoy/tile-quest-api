@@ -8,6 +8,8 @@ CS 313 Software Engineering 1, A.Y. 2026-2027.
 
 This is my own build of my group's game concept. Every commit in this repository was made by me, with Git, on my own computer or in my own Codespace.
 
+Live API: https://tile-quest-api-2.onrender.com/api/v1
+
 ## Tech stack
 
 | Layer | Tool |
