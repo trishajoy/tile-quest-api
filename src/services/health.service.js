@@ -7,6 +7,7 @@ async function checkDatabase() {
     await healthRepository.ping();
     return 'up';
   } catch (error) {
+    console.error('Health check database error:', error.message);
     return 'down';
   }
 }
